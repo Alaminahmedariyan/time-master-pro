@@ -356,12 +356,12 @@
         @media (min-width: 481px) {
             .timer-btn {
                 flex: none;
-            padding: 12px 25px;
-            min-width: auto;
-            max-width: 120px;
-            width: auto;
-            flex-basis: auto;
-            flex-grow: 0;
+                padding: 12px 25px;
+                min-width: auto;
+                max-width: 120px;
+                width: auto;
+                flex-basis: auto;
+                flex-grow: 0;
                 flex-shrink: 0;
             }
         }
@@ -484,6 +484,12 @@
             margin-top: 15px;
         }
 
+        @media (max-width: 480px) {
+            .calendar {
+                gap: 3px;
+            }
+        }
+
         .calendar-header {
             grid-column: 1 / -1;
             display: flex;
@@ -526,6 +532,10 @@
             border: 2px solid var(--border-color);
             min-height: 60px;
             font-size: 0.9em;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
 
         @media (min-width: 481px) {
@@ -795,11 +805,28 @@
             margin-top: 10px;
             font-weight: 600;
             font-size: 0.9em;
+            margin-bottom: 15px;
         }
 
         @media (min-width: 481px) {
             .total-time {
                 font-size: 1em;
+            }
+        }
+
+        /* Fix for calendar day headers */
+        .calendar-day-header {
+            font-weight: bold;
+            text-align: center;
+            padding: 10px;
+            background: var(--card-bg);
+            border-radius: 5px;
+        }
+
+        @media (max-width: 480px) {
+            .calendar-day-header {
+                padding: 8px;
+                font-size: 0.9em;
             }
         }
     </style>
@@ -1276,9 +1303,7 @@
             const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
             days.forEach(day => {
                 const dayHeader = document.createElement('div');
-                dayHeader.style.fontWeight = 'bold';
-                dayHeader.style.textAlign = 'center';
-                dayHeader.style.padding = '10px';
+                dayHeader.className = 'calendar-day-header';
                 dayHeader.textContent = day;
                 calendar.appendChild(dayHeader);
             });
