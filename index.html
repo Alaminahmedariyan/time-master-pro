@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TimeMaster - Custom Timer</title>
     <style>
+        /* All your existing CSS styles remain the same */
         :root {
             --primary-color: #3b82f6;
             --secondary-color: #1e40af;
@@ -829,6 +830,47 @@
                 font-size: 0.9em;
             }
         }
+        
+        /* Notification styles */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--success-color);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            max-width: 300px;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        .notification.warning {
+            background: var(--warning-color);
+        }
+        
+        .notification.danger {
+            background: var(--danger-color);
+        }
+        
+        .notification.info {
+            background: var(--info-color);
+        }
     </style>
 </head>
 <body>
@@ -954,7 +996,7 @@
         // Global Variables
         let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
         let history = JSON.parse(localStorage.getItem('studyHistory')) || [];
-        let timer;
+        let timerWorker;
         let timerRunning = false;
         let timerTime = 60 * 60; // Default 1 hour in seconds
         let currentActivity = "No task selected";
@@ -966,6 +1008,68 @@
         let selectedDate = null;
         let currentHistoryType = 'all';
         let selectedDuration = 60; // Default duration in minutes
+        let backgroundTimerActive = false;
+
+        // Create Web Worker for background timer
+        function createTimerWorker() {
+            if (window.Worker) {
+                const workerCode = `
+                    let timerInterval;
+                    let remainingTime = 0;
+                    
+                    self.onmessage = function(e) {
+                        const { command, time } = e.data;
+                        
+                        if (command === 'start') {
+                            remainingTime = time;
+                            clearInterval(timerInterval);
+                            
+                            timerInterval = setInterval(() => {
+                                remainingTime--;
+                                
+                                if (remainingTime <= 0) {
+                                    clearInterval(timerInterval);
+                                    self.postMessage({ command: 'completed' });
+                                } else {
+                                    self.postMessage({ 
+                                        command: 'tick', 
+                                        remainingTime: remainingTime 
+                                    });
+                                }
+                            }, 1000);
+                        } 
+                        else if (command === 'pause') {
+                            clearInterval(timerInterval);
+                        }
+                        else if (command === 'resume') {
+                            clearInterval(timerInterval);
+                            
+                            timerInterval = setInterval(() => {
+                                remainingTime--;
+                                
+                                if (remainingTime <= 0) {
+                                    clearInterval(timerInterval);
+                                    self.postMessage({ command: 'completed' });
+                                } else {
+                                    self.postMessage({ 
+                                        command: 'tick', 
+                                        remainingTime: remainingTime 
+                                    });
+                                }
+                            }, 1000);
+                        }
+                        else if (command === 'reset') {
+                            clearInterval(timerInterval);
+                            remainingTime = 0;
+                        }
+                    };
+                `;
+                
+                const blob = new Blob([workerCode], { type: 'application/javascript' });
+                return new Worker(URL.createObjectURL(blob));
+            }
+            return null;
+        }
 
         // Theme Management
         function toggleTheme() {
@@ -1231,7 +1335,7 @@
             });
         }
 
-        // Timer Functionality
+        // Timer Functionality with Background Support
         function startTimer() {
             if (currentActivity === "No task selected") {
                 alert("Please select a task first!");
@@ -1240,20 +1344,72 @@
             
             if (!timerRunning) {
                 timerRunning = true;
-                timer = setInterval(updateTimer, 1000);
+                backgroundTimerActive = true;
+                
+                // Use Web Worker for background timer if available
+                if (window.Worker && !timerWorker) {
+                    timerWorker = createTimerWorker();
+                    
+                    timerWorker.onmessage = function(e) {
+                        const { command, remainingTime } = e.data;
+                        
+                        if (command === 'tick') {
+                            timerTime = remainingTime;
+                            updateTimerDisplay();
+                        } 
+                        else if (command === 'completed') {
+                            // Timer completed - auto complete the task
+                            autoCompleteTask();
+                            pauseTimer();
+                            
+                            // Show notification
+                            showNotification(`Time completed! Your task has been automatically completed and saved to history. (${selectedDuration} minutes)`, 'success');
+                            
+                            resetTimer();
+                            
+                            // Reset current activity
+                            currentActivity = "No task selected";
+                            currentTaskId = null;
+                            document.getElementById('currentActivity').textContent = `Current Activity: ${currentActivity}`;
+                        }
+                    };
+                    
+                    timerWorker.postMessage({ command: 'start', time: timerTime });
+                } else {
+                    // Fallback to regular timer if Web Workers not supported
+                    timer = setInterval(updateTimer, 1000);
+                }
+                
                 document.getElementById('motivationText').textContent = "Focus on your work! 💪";
+                showNotification("Timer started! It will continue running even when you switch tabs.", 'info');
             }
         }
 
         function pauseTimer() {
             timerRunning = false;
-            clearInterval(timer);
+            
+            if (timerWorker) {
+                timerWorker.postMessage({ command: 'pause' });
+            } else {
+                clearInterval(timer);
+            }
+            
             document.getElementById('motivationText').textContent = "Take a break... ☕";
+            showNotification("Timer paused", 'warning');
         }
 
         function resetTimer() {
             timerRunning = false;
-            clearInterval(timer);
+            backgroundTimerActive = false;
+            
+            if (timerWorker) {
+                timerWorker.postMessage({ command: 'reset' });
+                timerWorker.terminate();
+                timerWorker = null;
+            } else {
+                clearInterval(timer);
+            }
+            
             timerTime = selectedDuration * 60;
             updateTimerDisplay();
             document.getElementById('motivationText').textContent = "Get ready to start fresh! 🚀";
@@ -1467,6 +1623,31 @@
 
         function saveTasks() {
             localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+
+        // Notification system
+        function showNotification(message, type = 'info') {
+            // Remove existing notifications
+            const existingNotifications = document.querySelectorAll('.notification');
+            existingNotifications.forEach(notification => {
+                notification.remove();
+            });
+            
+            // Create new notification
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <span>${message}</span>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 5000);
         }
 
         // Initialize
