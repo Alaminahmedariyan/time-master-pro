@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TimeMaster - Custom Timer</title>
+    <style>
+        :root {
+            --primary-color: #3b82f6;
+            --secondary-color: #1e40af;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --info-color: #8b5cf6;
+            --bg-color: #ffffff;
+            --card-bg: #f8fafc;
+            --text-color: #1f2937;
+            --border-color: #e5e7eb;
+            --shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .dark-theme {
+            --primary-color: #60a5fa;
+            --secondary-color: #1e40af;
+            --success-color: #34d399;
+            --warning-color: #fbbf24;
+            --danger-color: #f87171;
+            --info-color: #a78bfa;
+            --bg-color: #111827;
+            --card-bg: #1f2937;
+            --text-color: #f9fafb;
+            --border-color: #374151;
+            --shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: var(--text-color);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: var(--bg-color);
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .theme-switch {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            padding: 10px 15px;
+            border-radius: 20px;
+            color: white;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            font-weight: 600;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            border-left: 5px solid var(--primary-color);
+        }
+
+        .card h3 {
+            color: var(--text-color);
+            margin-bottom: 15px;
+            font-size: 1.4em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .task-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .task-input input, .task-input select {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+            background: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        .task-input button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .task-input button:hover {
+            background: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .task-list {
+            list-style: none;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .task-item {
+            background: var(--bg-color);
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border: 1px solid var(--border-color);
+        }
+
+        .task-item.completed {
+            opacity: 0.7;
+            text-decoration: line-through;
+            background: var(--success-color);
+            color: white;
+        }
+
+        .task-category {
+            font-size: 0.8em;
+            background: var(--info-color);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 20px;
+            margin-left: 10px;
+            font-weight: 600;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-start {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-complete {
+            background: var(--success-color);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-delete {
+            background: var(--danger-color);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .timer-section {
+            text-align: center;
+        }
+
+        .timer {
+            text-align: center;
+            font-size: 3em;
+            font-weight: bold;
+            color: var(--text-color);
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        .timer-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .timer-btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .start-btn {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .pause-btn {
+            background: var(--warning-color);
+            color: white;
+        }
+
+        .reset-btn {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .timer-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .custom-timer {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .time-option {
+            background: var(--bg-color);
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .time-option:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .time-option.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .custom-time-input {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .custom-time-input input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+            background: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        .custom-time-input button {
+            background: var(--info-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .current-activity {
+            background: var(--bg-color);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            text-align: center;
+            font-weight: bold;
+            color: var(--text-color);
+            border: 2px solid var(--primary-color);
+        }
+
+        .history-section {
+            grid-column: 1 / -1;
+        }
+
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            margin-top: 15px;
+        }
+
+        .calendar-header {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .calendar-header button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .calendar-day {
+            background: var(--bg-color);
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid var(--border-color);
+            min-height: 80px;
+        }
+
+        .calendar-day.has-data {
+            background: var(--success-color);
+            color: white;
+            border-color: var(--success-color);
+        }
+
+        .calendar-day.selected {
+            border: 3px solid var(--primary-color);
+            transform: scale(1.05);
+        }
+
+        .calendar-day.today {
+            border-color: var(--warning-color);
+            border-width: 2px;
+        }
+
+        .day-number {
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .day-stats {
+            font-size: 0.8em;
+            margin-top: 5px;
+        }
+
+        .history-details {
+            background: var(--bg-color);
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+        }
+
+        .history-item {
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-time {
+            color: #6b7280;
+            font-size: 0.9em;
+        }
+
+        .history-duration {
+            background: var(--success-color);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: var(--bg-color);
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border: 1px solid var(--border-color);
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .motivation {
+            text-align: center;
+            font-style: italic;
+            color: #6b7280;
+            margin-top: 20px;
+            padding: 15px;
+            background: var(--card-bg);
+            border-radius: 8px;
+        }
+
+        .category-filter {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .category-btn {
+            padding: 8px 15px;
+            border: 2px solid var(--primary-color);
+            background: var(--bg-color);
+            color: var(--primary-color);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .category-btn.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .history-type {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .type-btn {
+            padding: 8px 15px;
+            border: 2px solid var(--primary-color);
+            background: var(--bg-color);
+            color: var(--primary-color);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .type-btn.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-start:hover, .btn-complete:hover, .btn-delete:hover,
+        .category-btn:hover, .type-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+
+        .completion-message {
+            background: var(--success-color);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            margin-top: 10px;
+            font-weight: 600;
+        }
+
+        .total-time {
+            background: var(--info-color);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            margin-top: 10px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="theme-switch" onclick="toggleTheme()">🌙 Dark Mode</button>
+            <h1>⏰ TimeMaster Pro</h1>
+            <p>Your Complete Time Management & History Tracking System</p>
+        </div>
+
+        <div class="main-content">
+            <!-- Task Management -->
+            <div class="card">
+                <h3>📝 Task List</h3>
+                <div class="task-input">
+                    <input type="text" id="taskInput" placeholder="Add new task...">
+                    <select id="taskCategory">
+                        <option value="study">📚 Study</option>
+                        <option value="programming">💻 Programming</option>
+                        <option value="project">🚀 Project</option>
+                        <option value="other">📋 Other</option>
+                    </select>
+                    <button onclick="addTask()">Add Task</button>
+                </div>
+                <div class="category-filter" id="categoryFilter">
+                    <button class="category-btn active" onclick="filterTasks('all')">All</button>
+                    <button class="category-btn" onclick="filterTasks('study')">📚 Study</button>
+                    <button class="category-btn" onclick="filterTasks('programming')">💻 Programming</button>
+                    <button class="category-btn" onclick="filterTasks('project')">🚀 Project</button>
+                    <button class="category-btn" onclick="filterTasks('other')">📋 Other</button>
+                </div>
+                <ul class="task-list" id="taskList">
+                    <!-- Tasks will be added here dynamically -->
+                </ul>
+            </div>
+
+            <!-- Timer Section -->
+            <div class="card">
+                <h3>⏱️ Custom Study Timer</h3>
+                <div class="timer" id="timer">60:00</div>
+                
+                <!-- Quick Time Options -->
+                <div class="custom-timer">
+                    <div class="time-option" onclick="setTimer(15)">15 min</div>
+                    <div class="time-option" onclick="setTimer(30)">30 min</div>
+                    <div class="time-option" onclick="setTimer(45)">45 min</div>
+                    <div class="time-option" onclick="setTimer(60)">1 hour</div>
+                    <div class="time-option" onclick="setTimer(90)">1.5 hours</div>
+                    <div class="time-option" onclick="setTimer(120)">2 hours</div>
+                </div>
+
+                <!-- Custom Time Input -->
+                <div class="custom-time-input">
+                    <input type="number" id="customMinutes" placeholder="Enter minutes" min="1" max="240">
+                    <button onclick="setCustomTimer()">Set Timer</button>
+                </div>
+
+                <div class="timer-controls">
+                    <button class="timer-btn start-btn" onclick="startTimer()">Start</button>
+                    <button class="timer-btn pause-btn" onclick="pauseTimer()">Pause</button>
+                    <button class="timer-btn reset-btn" onclick="resetTimer()">Reset</button>
+                </div>
+
+                <div class="current-activity" id="currentActivity">
+                    Current Activity: No task selected
+                </div>
+                <div id="completionMessage"></div>
+                <div class="motivation" id="motivationText">
+                    "A goal is a dream with a deadline." - Napoleon Hill
+                </div>
+            </div>
+
+            <!-- History & Calendar Section -->
+            <div class="card history-section">
+                <h3>📅 Work History Calendar</h3>
+                <div class="calendar-header">
+                    <button onclick="changeMonth(-1)">← Previous Month</button>
+                    <h4 id="currentMonth">Month</h4>
+                    <button onclick="changeMonth(1)">Next Month →</button>
+                </div>
+                <div class="calendar" id="calendar">
+                    <!-- Calendar will be generated dynamically -->
+                </div>
+                <div class="total-time" id="totalTimeDisplay">
+                    Total Study Time Today: 0 hours 0 minutes
+                </div>
+                <div class="history-type">
+                    <button class="type-btn active" onclick="showHistoryType('all')">All Tasks</button>
+                    <button class="type-btn" onclick="showHistoryType('completed')">Completed Tasks</button>
+                    <button class="type-btn" onclick="showHistoryType('timer')">Timer Tasks</button>
+                </div>
+                <div class="history-details" id="historyDetails">
+                    <!-- History details will be shown here -->
+                </div>
+            </div>
+
+            <!-- Progress Tracking -->
+            <div class="card">
+                <h3>📊 Today's Progress</h3>
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-number" id="completedTasks">0</div>
+                        <div>Completed Tasks</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="studyHours">0</div>
+                        <div>Study Hours</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="programmingHours">0</div>
+                        <div>Programming Hours</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalHours">0</div>
+                        <div>Total Hours</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global Variables
+        let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+        let history = JSON.parse(localStorage.getItem('studyHistory')) || [];
+        let timer;
+        let timerRunning = false;
+        let timerTime = 60 * 60; // Default 1 hour in seconds
+        let currentActivity = "No task selected";
+        let currentStartTime = null;
+        let currentTaskId = null;
+        let currentDate = new Date();
+        let currentMonth = currentDate.getMonth();
+        let currentYear = currentDate.getFullYear();
+        let selectedDate = null;
+        let currentHistoryType = 'all';
+        let selectedDuration = 60; // Default duration in minutes
+
+        // Theme Management
+        function toggleTheme() {
+            document.body.classList.toggle('dark-theme');
+            const themeBtn = document.querySelector('.theme-switch');
+            themeBtn.textContent = document.body.classList.contains('dark-theme') ? '☀️ Light Mode' : '🌙 Dark Mode';
+        }
+
+        // Timer Settings
+        function setTimer(minutes) {
+            selectedDuration = minutes;
+            timerTime = minutes * 60;
+            updateTimerDisplay();
+            
+            // Update active time option
+            document.querySelectorAll('.time-option').forEach(option => {
+                option.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            document.getElementById('completionMessage').innerHTML = 
+                `<div class="completion-message">Timer set to ${minutes} minutes</div>`;
+            
+            setTimeout(() => {
+                document.getElementById('completionMessage').innerHTML = '';
+            }, 2000);
+        }
+
+        function setCustomTimer() {
+            const customMinutes = parseInt(document.getElementById('customMinutes').value);
+            if (customMinutes && customMinutes > 0 && customMinutes <= 240) {
+                setTimer(customMinutes);
+                document.getElementById('customMinutes').value = '';
+            } else {
+                alert('Please enter a valid number between 1 and 240 minutes');
+            }
+        }
+
+        // Task Management
+        function addTask() {
+            const taskInput = document.getElementById('taskInput');
+            const taskCategory = document.getElementById('taskCategory');
+            const taskText = taskInput.value.trim();
+            
+            if (taskText) {
+                tasks.push({
+                    id: Date.now(),
+                    text: taskText,
+                    category: taskCategory.value,
+                    categoryName: taskCategory.options[taskCategory.selectedIndex].text,
+                    completed: false,
+                    timestamp: new Date().toLocaleString('en-US'),
+                    completedAt: null,
+                    completedDuration: 0
+                });
+                taskInput.value = '';
+                saveTasks();
+                renderTasks();
+                updateStats();
+            }
+        }
+
+        function renderTasks() {
+            const taskList = document.getElementById('taskList');
+            taskList.innerHTML = '';
+            
+            const activeTasks = tasks.filter(task => !task.completed);
+            
+            if (activeTasks.length === 0) {
+                taskList.innerHTML = '<li style="text-align: center; color: #6b7280; padding: 20px;">No tasks available</li>';
+                return;
+            }
+            
+            activeTasks.forEach(task => {
+                const taskItem = document.createElement('li');
+                taskItem.className = `task-item`;
+                taskItem.innerHTML = `
+                    <div>
+                        <span>${task.text}</span>
+                        <span class="task-category">${task.categoryName}</span>
+                    </div>
+                    <div class="task-actions">
+                        <button class="btn-start" onclick="startActivity(${task.id})">Start</button>
+                        <button class="btn-complete" onclick="completeTask(${task.id})">Complete</button>
+                        <button class="btn-delete" onclick="deleteTask(${task.id})">Delete</button>
+                    </div>
+                `;
+                taskList.appendChild(taskItem);
+            });
+        }
+
+        function startActivity(taskId) {
+            const task = tasks.find(t => t.id === taskId);
+            if (task) {
+                currentActivity = task.text;
+                currentTaskId = taskId;
+                currentStartTime = new Date();
+                document.getElementById('currentActivity').textContent = `Current Activity: ${task.text}`;
+                document.getElementById('completionMessage').innerHTML = '';
+                
+                document.getElementById('completionMessage').innerHTML = 
+                    `<div class="completion-message">"${task.text}" started! Timer set to ${selectedDuration} minutes</div>`;
+                
+                setTimeout(() => {
+                    document.getElementById('completionMessage').innerHTML = '';
+                }, 3000);
+            }
+        }
+
+        function completeTask(taskId) {
+            const task = tasks.find(t => t.id === taskId);
+            if (task) {
+                const endTime = new Date();
+                const startTime = new Date();
+                startTime.setMinutes(startTime.getMinutes() - selectedDuration);
+                
+                // Save to history when manually completed
+                const historyEntry = {
+                    date: new Date().toDateString(),
+                    activity: task.text,
+                    duration: selectedDuration,
+                    startTime: startTime.toLocaleString('en-US', { 
+                        year: 'numeric', 
+                        month: '2-digit', 
+                        day: '2-digit',
+                        hour: '2-digit', 
+                        minute: '2-digit',
+                        hour12: true 
+                    }),
+                    endTime: endTime.toLocaleString('en-US', { 
+                        year: 'numeric', 
+                        month: '2-digit', 
+                        day: '2-digit',
+                        hour: '2-digit', 
+                        minute: '2-digit',
+                        hour12: true 
+                    }),
+                    category: task.category,
+                    categoryName: task.categoryName,
+                    type: 'manual'
+                };
+                
+                history.push(historyEntry);
+                localStorage.setItem('studyHistory', JSON.stringify(history));
+                
+                // Mark task as completed
+                task.completed = true;
+                task.completedAt = endTime.toLocaleString('en-US');
+                task.completedDuration = selectedDuration;
+                
+                saveTasks();
+                renderTasks();
+                updateStats();
+                renderCalendar();
+                updateTotalTime();
+                
+                // Show completion message
+                document.getElementById('completionMessage').innerHTML = 
+                    `<div class="completion-message">"${task.text}" completed! (${selectedDuration} minutes)</div>`;
+                
+                setTimeout(() => {
+                    document.getElementById('completionMessage').innerHTML = '';
+                }, 3000);
+            }
+        }
+
+        function autoCompleteTask() {
+            if (!currentTaskId) return;
+            
+            const task = tasks.find(t => t.id === currentTaskId);
+            if (task && !task.completed) {
+                const endTime = new Date();
+                
+                // Save to history
+                const historyEntry = {
+                    date: new Date().toDateString(),
+                    activity: task.text,
+                    duration: selectedDuration,
+                    startTime: currentStartTime.toLocaleString('en-US', { 
+                        year: 'numeric', 
+                        month: '2-digit', 
+                        day: '2-digit',
+                        hour: '2-digit', 
+                        minute: '2-digit',
+                        hour12: true 
+                    }),
+                    endTime: endTime.toLocaleString('en-US', { 
+                        year: 'numeric', 
+                        month: '2-digit', 
+                        day: '2-digit',
+                        hour: '2-digit', 
+                        minute: '2-digit',
+                        hour12: true 
+                    }),
+                    category: task.category,
+                    categoryName: task.categoryName,
+                    type: 'timer'
+                };
+                
+                history.push(historyEntry);
+                localStorage.setItem('studyHistory', JSON.stringify(history));
+                
+                // Mark task as completed
+                task.completed = true;
+                task.completedAt = endTime.toLocaleString('en-US');
+                task.completedDuration = selectedDuration;
+                
+                saveTasks();
+                renderTasks();
+                updateStats();
+                renderCalendar();
+                updateTotalTime();
+                
+                // Show completion message
+                document.getElementById('completionMessage').innerHTML = 
+                    `<div class="completion-message">"${task.text}" completed automatically! (${selectedDuration} minutes)</div>`;
+                
+                setTimeout(() => {
+                    document.getElementById('completionMessage').innerHTML = '';
+                }, 3000);
+            }
+        }
+
+        function deleteTask(id) {
+            tasks = tasks.filter(task => task.id !== id);
+            saveTasks();
+            renderTasks();
+            updateStats();
+        }
+
+        function filterTasks(category) {
+            const buttons = document.querySelectorAll('.category-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            const taskList = document.getElementById('taskList');
+            taskList.innerHTML = '';
+            
+            const filteredTasks = tasks.filter(task => 
+                !task.completed && (category === 'all' || task.category === category)
+            );
+            
+            if (filteredTasks.length === 0) {
+                taskList.innerHTML = '<li style="text-align: center; color: #6b7280; padding: 20px;">No tasks available</li>';
+                return;
+            }
+            
+            filteredTasks.forEach(task => {
+                const taskItem = document.createElement('li');
+                taskItem.className = `task-item`;
+                taskItem.innerHTML = `
+                    <div>
+                        <span>${task.text}</span>
+                        <span class="task-category">${task.categoryName}</span>
+                    </div>
+                    <div class="task-actions">
+                        <button class="btn-start" onclick="startActivity(${task.id})">Start</button>
+                        <button class="btn-complete" onclick="completeTask(${task.id})">Complete</button>
+                        <button class="btn-delete" onclick="deleteTask(${task.id})">Delete</button>
+                    </div>
+                `;
+                taskList.appendChild(taskItem);
+            });
+        }
+
+        // Timer Functionality
+        function startTimer() {
+            if (currentActivity === "No task selected") {
+                alert("Please select a task first!");
+                return;
+            }
+            
+            if (!timerRunning) {
+                timerRunning = true;
+                timer = setInterval(updateTimer, 1000);
+                document.getElementById('motivationText').textContent = "Focus on your work! 💪";
+            }
+        }
+
+        function pauseTimer() {
+            timerRunning = false;
+            clearInterval(timer);
+            document.getElementById('motivationText').textContent = "Take a break... ☕";
+        }
+
+        function resetTimer() {
+            timerRunning = false;
+            clearInterval(timer);
+            timerTime = selectedDuration * 60;
+            updateTimerDisplay();
+            document.getElementById('motivationText').textContent = "Get ready to start fresh! 🚀";
+        }
+
+        function updateTimer() {
+            if (timerTime > 0) {
+                timerTime--;
+                updateTimerDisplay();
+            } else {
+                // Timer completed - auto complete the task
+                autoCompleteTask();
+                pauseTimer();
+                alert(`Time completed! Your task has been automatically completed and saved to history. (${selectedDuration} minutes)`);
+                resetTimer();
+                
+                // Reset current activity
+                currentActivity = "No task selected";
+                currentTaskId = null;
+                document.getElementById('currentActivity').textContent = `Current Activity: ${currentActivity}`;
+            }
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timerTime / 60);
+            const seconds = timerTime % 60;
+            document.getElementById('timer').textContent = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function updateTotalTime() {
+            const today = new Date().toDateString();
+            const todayHistory = history.filter(h => h.date === today);
+            const totalMinutes = todayHistory.reduce((sum, h) => sum + h.duration, 0);
+            const hours = Math.floor(totalMinutes / 60);
+            const minutes = totalMinutes % 60;
+            
+            document.getElementById('totalTimeDisplay').textContent = 
+                `Total Study Time Today: ${hours} hours ${minutes} minutes`;
+        }
+
+        // Calendar and History functions
+        function renderCalendar() {
+            const calendar = document.getElementById('calendar');
+            calendar.innerHTML = '';
+            
+            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            days.forEach(day => {
+                const dayHeader = document.createElement('div');
+                dayHeader.style.fontWeight = 'bold';
+                dayHeader.style.textAlign = 'center';
+                dayHeader.style.padding = '10px';
+                dayHeader.textContent = day;
+                calendar.appendChild(dayHeader);
+            });
+            
+            const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            const today = new Date().toDateString();
+            
+            for (let i = 0; i < firstDay; i++) {
+                const emptyCell = document.createElement('div');
+                emptyCell.style.padding = '10px';
+                calendar.appendChild(emptyCell);
+            }
+            
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day';
+                const dateStr = new Date(currentYear, currentMonth, day).toDateString();
+                
+                const dayHistory = getFilteredHistory(dateStr);
+                const totalMinutes = dayHistory.reduce((sum, h) => sum + h.duration, 0);
+                
+                if (dayHistory.length > 0) {
+                    dayElement.classList.add('has-data');
+                }
+                
+                if (dateStr === today) {
+                    dayElement.classList.add('today');
+                }
+                
+                if (dateStr === selectedDate) {
+                    dayElement.classList.add('selected');
+                }
+                
+                dayElement.innerHTML = `
+                    <div class="day-number">${day}</div>
+                    ${dayHistory.length > 0 ? 
+                        `<div class="day-stats">${dayHistory.length} tasks</div>
+                         <div class="day-stats">${totalMinutes}m</div>` : ''
+                    }
+                `;
+                
+                dayElement.onclick = () => selectDate(dateStr, dayElement);
+                calendar.appendChild(dayElement);
+            }
+            
+            document.getElementById('currentMonth').textContent = 
+                new Date(currentYear, currentMonth).toLocaleDateString('en-US', { 
+                    year: 'numeric', 
+                    month: 'long' 
+                });
+        }
+
+        function selectDate(dateStr, element) {
+            document.querySelectorAll('.calendar-day').forEach(day => {
+                day.classList.remove('selected');
+            });
+            
+            element.classList.add('selected');
+            selectedDate = dateStr;
+            showHistoryDetails(dateStr);
+        }
+
+        function getFilteredHistory(dateStr) {
+            const dayHistory = history.filter(h => h.date === dateStr);
+            
+            switch(currentHistoryType) {
+                case 'completed':
+                    return dayHistory.filter(h => h.type === 'manual');
+                case 'timer':
+                    return dayHistory.filter(h => h.type === 'timer');
+                default:
+                    return dayHistory;
+            }
+        }
+
+        function showHistoryType(type) {
+            currentHistoryType = type;
+            const buttons = document.querySelectorAll('.type-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            if (selectedDate) {
+                showHistoryDetails(selectedDate);
+            }
+        }
+
+        function showHistoryDetails(dateStr) {
+            const historyDetails = document.getElementById('historyDetails');
+            const dayHistory = getFilteredHistory(dateStr);
+            
+            if (dayHistory.length === 0) {
+                historyDetails.innerHTML = `<div style="text-align: center; color: #6b7280; padding: 20px;">
+                    ${new Date(dateStr).toLocaleDateString('en-US')} - No records found
+                </div>`;
+                return;
+            }
+            
+            let html = `<h4 style="margin-bottom: 15px; color: var(--text-color);">${new Date(dateStr).toLocaleDateString('en-US')} - Activity Details</h4>`;
+            
+            dayHistory.forEach((record, index) => {
+                html += `
+                    <div class="history-item">
+                        <div style="flex: 1;">
+                            <strong>${record.activity}</strong>
+                            <div class="history-time">Start: ${record.startTime}</div>
+                            <div class="history-time">End: ${record.endTime}</div>
+                            <small style="color: var(--primary-color); font-weight: 600;">${record.categoryName} • ${record.type === 'timer' ? 'Timer' : 'Manual'} • ${record.duration} min</small>
+                        </div>
+                        <div class="history-duration">${record.duration} min</div>
+                    </div>
+                `;
+            });
+            
+            const totalTime = dayHistory.reduce((sum, record) => sum + record.duration, 0);
+            const totalHours = Math.floor(totalTime / 60);
+            const totalMinutes = totalTime % 60;
+            
+            html += `
+                <div class="history-item" style="background: var(--card-bg); font-weight: bold; margin-top: 10px;">
+                    <div>Total Time</div>
+                    <div class="history-duration">${totalTime} min (${totalHours}h ${totalMinutes}m)</div>
+                </div>
+            `;
+            
+            historyDetails.innerHTML = html;
+        }
+
+        function changeMonth(direction) {
+            currentMonth += direction;
+            if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            } else if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            }
+            selectedDate = null;
+            renderCalendar();
+        }
+
+        // Statistics
+        function updateStats() {
+            const completedTasks = tasks.filter(task => task.completed).length;
+            const today = new Date().toDateString();
+            const todayHistory = history.filter(h => h.date === today);
+            
+            const studyHours = todayHistory.filter(h => h.category === 'study')
+                .reduce((sum, h) => sum + h.duration, 0) / 60;
+            
+            const programmingHours = todayHistory.filter(h => h.category === 'programming')
+                .reduce((sum, h) => sum + h.duration, 0) / 60;
+            
+            const totalHours = todayHistory.reduce((sum, h) => sum + h.duration, 0) / 60;
+            
+            document.getElementById('completedTasks').textContent = completedTasks;
+            document.getElementById('studyHours').textContent = studyHours.toFixed(1);
+            document.getElementById('programmingHours').textContent = programmingHours.toFixed(1);
+            document.getElementById('totalHours').textContent = totalHours.toFixed(1);
+        }
+
+        function saveTasks() {
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+
+        // Initialize
+        document.getElementById('taskInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addTask();
+            }
+        });
+
+        // Set default timer to 60 minutes on load
+        document.querySelector('.time-option:nth-child(4)').classList.add('active');
+
+        // Initial render
+        renderTasks();
+        renderCalendar();
+        updateStats();
+        updateTimerDisplay();
+        updateTotalTime();
+
+        // Show today's history on load
+        selectedDate = new Date().toDateString();
+        showHistoryDetails(selectedDate);
+
+        // Random motivation quotes
+        const motivations = [
+            "Small efforts lead to big success 🗝️",
+            "What you study today, you'll benefit from tomorrow 🌱",
+            "One step at a time leads to your goal 🎯",
+            "Time management is the key to success ⭐",
+            "You can do it, believe in yourself 💫",
+            "Regular study is the master key to success 🔑"
+        ];
+
+        setInterval(() => {
+            const randomMotivation = motivations[Math.floor(Math.random() * motivations.length)];
+            document.getElementById('motivationText').textContent = randomMotivation;
+        }, 10000);
+    </script>
+</body>
+</html>
