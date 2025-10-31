@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TimeMaster - Custom Timer</title>
+    <title>TimeMaster Pro - Custom Timer</title>
     <style>
-        /* All your existing CSS styles remain the same */
         :root {
             --primary-color: #3b82f6;
             --secondary-color: #1e40af;
@@ -18,6 +17,7 @@
             --text-color: #1f2937;
             --border-color: #e5e7eb;
             --shadow: 0 5px 15px rgba(0,0,0,0.1);
+            --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
 
         .dark-theme {
@@ -32,6 +32,7 @@
             --text-color: #f9fafb;
             --border-color: #374151;
             --shadow: 0 5px 15px rgba(0,0,0,0.3);
+            --gradient: linear-gradient(135deg, #1e3a8a 0%, #7e22ce 100%);
         }
 
         * {
@@ -39,11 +40,11 @@
             padding: 0;
             box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            transition: background-color 0.3s, color 0.3s;
+            transition: background-color 0.3s, color 0.3s, transform 0.2s;
         }
 
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--gradient);
             min-height: 100vh;
             padding: 15px;
             color: var(--text-color);
@@ -53,71 +54,86 @@
             max-width: 1400px;
             margin: 0 auto;
             background: var(--bg-color);
-            border-radius: 15px;
+            border-radius: 20px;
             box-shadow: var(--shadow);
             overflow: hidden;
+            position: relative;
         }
 
         .header {
-            background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+            background: var(--gradient);
             color: white;
-            padding: 25px 20px;
+            padding: 30px 25px;
             text-align: center;
             position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, transparent 50%);
+            pointer-events: none;
         }
 
         .theme-switch {
             position: absolute;
-            top: 15px;
-            right: 15px;
+            top: 20px;
+            right: 20px;
             background: rgba(255,255,255,0.2);
             border: none;
-            padding: 8px 12px;
-            border-radius: 20px;
+            padding: 10px 15px;
+            border-radius: 25px;
             color: white;
             cursor: pointer;
             backdrop-filter: blur(10px);
             font-weight: 600;
             font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 10;
         }
 
         .header h1 {
-            font-size: 1.8em;
-            margin-bottom: 8px;
-            padding-right: 100px;
+            font-size: 2.2em;
+            margin-bottom: 10px;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
 
         .header p {
-            font-size: 1em;
-            opacity: 0.9;
+            font-size: 1.1em;
+            opacity: 0.95;
+            max-width: 600px;
+            margin: 0 auto;
         }
 
         .main-content {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            padding: 20px;
+            gap: 25px;
+            padding: 25px;
         }
 
         @media (max-width: 768px) {
             .main-content {
                 grid-template-columns: 1fr;
-                gap: 15px;
-                padding: 15px;
+                gap: 20px;
+                padding: 20px;
             }
             
             .header h1 {
-                font-size: 1.5em;
-                padding-right: 80px;
+                font-size: 1.8em;
+                padding-right: 0;
             }
             
             .header p {
-                font-size: 0.9em;
-            }
-            
-            .theme-switch {
-                font-size: 12px;
-                padding: 6px 10px;
+                font-size: 1em;
             }
         }
 
@@ -127,55 +143,60 @@
             }
             
             .header {
-                padding: 20px 15px;
+                padding: 25px 20px;
             }
             
             .header h1 {
-                font-size: 1.3em;
-                padding-right: 70px;
-            }
-            
-            .theme-switch {
-                top: 10px;
-                right: 10px;
-                font-size: 11px;
-                padding: 5px 8px;
+                font-size: 1.5em;
             }
         }
 
         .card {
             background: var(--card-bg);
-            border-radius: 12px;
-            padding: 20px;
+            border-radius: 16px;
+            padding: 25px;
             box-shadow: var(--shadow);
-            border-left: 5px solid var(--primary-color);
+            border-left: 6px solid var(--primary-color);
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+            overflow: hidden;
         }
 
-        @media (max-width: 480px) {
-            .card {
-                padding: 15px;
-            }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--primary-color);
+            transform: scaleX(0);
+            transition: transform 0.3s;
+        }
+
+        .card:hover::before {
+            transform: scaleX(1);
         }
 
         .card h3 {
             color: var(--text-color);
-            margin-bottom: 15px;
-            font-size: 1.2em;
+            margin-bottom: 20px;
+            font-size: 1.3em;
             display: flex;
             align-items: center;
-            gap: 10px;
-        }
-
-        @media (max-width: 480px) {
-            .card h3 {
-                font-size: 1.1em;
-            }
+            gap: 12px;
+            font-weight: 600;
         }
 
         .task-input {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
             margin-bottom: 20px;
         }
 
@@ -187,47 +208,66 @@
 
         .task-input input, .task-input select {
             flex: 1;
-            padding: 12px;
+            padding: 14px;
             border: 2px solid var(--border-color);
-            border-radius: 8px;
+            border-radius: 10px;
             font-size: 16px;
             background: var(--bg-color);
             color: var(--text-color);
+            transition: border-color 0.3s;
+        }
+
+        .task-input input:focus, .task-input select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
 
         .task-input button {
             background: var(--primary-color);
             color: white;
             border: none;
-            padding: 12px 20px;
-            border-radius: 8px;
+            padding: 14px 24px;
+            border-radius: 10px;
             cursor: pointer;
             font-size: 16px;
             font-weight: 600;
             transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: center;
         }
 
         .task-input button:hover {
             background: var(--secondary-color);
             transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
 
         .task-list {
             list-style: none;
-            max-height: 300px;
+            max-height: 350px;
             overflow-y: auto;
+            border-radius: 10px;
         }
 
         .task-item {
             background: var(--bg-color);
-            padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 8px;
+            padding: 18px;
+            margin-bottom: 12px;
+            border-radius: 12px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            gap: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
             border: 1px solid var(--border-color);
+            transition: all 0.3s;
+        }
+
+        .task-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
         }
 
         @media (min-width: 481px) {
@@ -240,17 +280,18 @@
         }
 
         .task-item.completed {
-            opacity: 0.7;
+            opacity: 0.8;
             text-decoration: line-through;
             background: var(--success-color);
             color: white;
+            transform: scale(0.98);
         }
 
         .task-category {
             font-size: 0.8em;
             background: var(--info-color);
             color: white;
-            padding: 4px 8px;
+            padding: 6px 12px;
             border-radius: 20px;
             font-weight: 600;
             display: inline-block;
@@ -260,13 +301,13 @@
         @media (min-width: 481px) {
             .task-category {
                 margin-top: 0;
-                margin-left: 10px;
+                margin-left: 12px;
             }
         }
 
         .task-actions {
             display: flex;
-            gap: 8px;
+            gap: 10px;
             flex-wrap: wrap;
         }
 
@@ -276,42 +317,44 @@
             }
         }
 
-        .btn-start {
-            background: var(--primary-color);
-            color: white;
+        .btn-start, .btn-complete, .btn-delete {
             border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
+            padding: 10px 18px;
+            border-radius: 8px;
             cursor: pointer;
             font-weight: 600;
             flex: 1;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            justify-content: center;
+        }
+
+        .btn-start {
+            background: var(--primary-color);
+            color: white;
         }
 
         .btn-complete {
             background: var(--success-color);
             color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: 600;
-            flex: 1;
         }
 
         .btn-delete {
             background: var(--danger-color);
             color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: 600;
-            flex: 1;
+        }
+
+        .btn-start:hover, .btn-complete:hover, .btn-delete:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
         }
 
         @media (min-width: 481px) {
             .btn-start, .btn-complete, .btn-delete {
                 flex: none;
+                padding: 10px 16px;
             }
         }
 
@@ -321,49 +364,55 @@
 
         .timer {
             text-align: center;
-            font-size: 2.5em;
+            font-size: 3em;
             font-weight: bold;
             color: var(--text-color);
-            margin: 20px 0;
+            margin: 25px 0;
             font-family: 'Courier New', monospace;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 16px;
+            border: 3px solid var(--primary-color);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
 
         @media (max-width: 480px) {
             .timer {
-                font-size: 2em;
+                font-size: 2.5em;
+                padding: 15px;
             }
         }
 
         .timer-controls {
             display: flex;
-            gap: 10px;
+            gap: 12px;
             justify-content: center;
             flex-wrap: wrap;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
 
         .timer-btn {
-            padding: 12px 20px;
+            padding: 14px 24px;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             font-size: 16px;
             cursor: pointer;
             transition: all 0.3s;
             font-weight: 600;
             flex: 1;
-            min-width: 100px;
+            min-width: 110px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: center;
         }
 
         @media (min-width: 481px) {
             .timer-btn {
                 flex: none;
-                padding: 12px 25px;
+                padding: 14px 28px;
                 min-width: auto;
-                max-width: 120px;
-                width: auto;
-                flex-basis: auto;
-                flex-grow: 0;
-                flex-shrink: 0;
             }
         }
 
@@ -383,15 +432,15 @@
         }
 
         .timer-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transform: translateY(-3px);
+            box-shadow: 0 7px 20px rgba(0,0,0,0.2);
         }
 
         .custom-timer {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin-top: 15px;
+            gap: 12px;
+            margin-top: 20px;
         }
 
         @media (min-width: 481px) {
@@ -404,8 +453,8 @@
             background: var(--bg-color);
             border: 2px solid var(--primary-color);
             color: var(--primary-color);
-            padding: 12px;
-            border-radius: 8px;
+            padding: 14px;
+            border-radius: 10px;
             cursor: pointer;
             text-align: center;
             font-weight: 600;
@@ -416,18 +465,20 @@
             background: var(--primary-color);
             color: white;
             transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
 
         .time-option.active {
             background: var(--primary-color);
             color: white;
+            transform: scale(1.05);
         }
 
         .custom-time-input {
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            margin-top: 15px;
+            gap: 12px;
+            margin-top: 20px;
         }
 
         @media (min-width: 481px) {
@@ -438,9 +489,9 @@
 
         .custom-time-input input {
             flex: 1;
-            padding: 12px;
+            padding: 14px;
             border: 2px solid var(--border-color);
-            border-radius: 8px;
+            border-radius: 10px;
             font-size: 16px;
             background: var(--bg-color);
             color: var(--text-color);
@@ -450,28 +501,26 @@
             background: var(--info-color);
             color: white;
             border: none;
-            padding: 12px 20px;
-            border-radius: 8px;
+            padding: 14px 24px;
+            border-radius: 10px;
             cursor: pointer;
             font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .current-activity {
             background: var(--bg-color);
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 15px;
+            padding: 18px;
+            border-radius: 12px;
+            margin-top: 20px;
             text-align: center;
             font-weight: bold;
             color: var(--text-color);
             border: 2px solid var(--primary-color);
-            font-size: 0.9em;
-        }
-
-        @media (min-width: 481px) {
-            .current-activity {
-                font-size: 1em;
-            }
+            font-size: 1em;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
         }
 
         .history-section {
@@ -481,14 +530,8 @@
         .calendar {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            gap: 5px;
-            margin-top: 15px;
-        }
-
-        @media (max-width: 480px) {
-            .calendar {
-                gap: 3px;
-            }
+            gap: 8px;
+            margin-top: 20px;
         }
 
         .calendar-header {
@@ -496,55 +539,51 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 12px;
         }
 
         .calendar-header button {
             background: var(--primary-color);
             color: white;
             border: none;
-            padding: 8px 12px;
-            border-radius: 6px;
+            padding: 10px 16px;
+            border-radius: 8px;
             cursor: pointer;
             font-weight: 600;
             font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s;
         }
 
-        @media (max-width: 480px) {
-            .calendar-header button {
-                padding: 6px 10px;
-                font-size: 12px;
-            }
-            
-            .calendar-header h4 {
-                font-size: 1em;
-            }
+        .calendar-header button:hover {
+            background: var(--secondary-color);
+            transform: translateY(-2px);
         }
 
         .calendar-day {
             background: var(--bg-color);
-            padding: 8px;
-            border-radius: 8px;
+            padding: 12px;
+            border-radius: 12px;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s;
             border: 2px solid var(--border-color);
-            min-height: 60px;
-            font-size: 0.9em;
+            min-height: 70px;
+            font-size: 0.95em;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            position: relative;
         }
 
-        @media (min-width: 481px) {
-            .calendar-day {
-                padding: 10px;
-                min-height: 80px;
-                font-size: 1em;
-            }
+        .calendar-day:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
         .calendar-day.has-data {
@@ -555,7 +594,7 @@
 
         .calendar-day.selected {
             border: 3px solid var(--primary-color);
-            transform: scale(1.05);
+            transform: scale(1.08);
         }
 
         .calendar-day.today {
@@ -564,49 +603,38 @@
         }
 
         .day-number {
-            font-size: 1em;
+            font-size: 1.1em;
             font-weight: bold;
         }
 
-        @media (min-width: 481px) {
-            .day-number {
-                font-size: 1.2em;
-            }
-        }
-
         .day-stats {
-            font-size: 0.7em;
-            margin-top: 5px;
-        }
-
-        @media (min-width: 481px) {
-            .day-stats {
-                font-size: 0.8em;
-            }
+            font-size: 0.75em;
+            margin-top: 6px;
+            font-weight: 600;
         }
 
         .history-details {
             background: var(--bg-color);
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 20px;
-            max-height: 400px;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 25px;
+            max-height: 450px;
             overflow-y: auto;
             border: 1px solid var(--border-color);
-        }
-
-        @media (max-width: 480px) {
-            .history-details {
-                padding: 10px;
-            }
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
         }
 
         .history-item {
-            padding: 12px;
+            padding: 16px;
             border-bottom: 1px solid var(--border-color);
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 10px;
+            transition: background-color 0.3s;
+        }
+
+        .history-item:hover {
+            background: var(--card-bg);
         }
 
         @media (min-width: 481px) {
@@ -624,15 +652,15 @@
 
         .history-time {
             color: #6b7280;
-            font-size: 0.85em;
+            font-size: 0.9em;
         }
 
         .history-duration {
             background: var(--success-color);
             color: white;
-            padding: 6px 12px;
+            padding: 8px 16px;
             border-radius: 20px;
-            font-size: 0.85em;
+            font-size: 0.9em;
             font-weight: 600;
             align-self: flex-start;
         }
@@ -646,75 +674,52 @@
         .stats {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        @media (max-width: 480px) {
-            .stats {
-                gap: 10px;
-            }
+            gap: 18px;
+            margin-top: 25px;
         }
 
         .stat-card {
             background: var(--bg-color);
-            padding: 15px;
-            border-radius: 8px;
+            padding: 20px;
+            border-radius: 12px;
             text-align: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
             border: 1px solid var(--border-color);
+            transition: transform 0.3s;
         }
 
-        @media (min-width: 481px) {
-            .stat-card {
-                padding: 20px;
-            }
+        .stat-card:hover {
+            transform: translateY(-5px);
         }
 
         .stat-number {
-            font-size: 1.5em;
+            font-size: 1.8em;
             font-weight: bold;
             color: var(--primary-color);
-        }
-
-        @media (min-width: 481px) {
-            .stat-number {
-                font-size: 2em;
-            }
+            margin-bottom: 8px;
         }
 
         .motivation {
             text-align: center;
             font-style: italic;
             color: #6b7280;
-            margin-top: 20px;
-            padding: 15px;
+            margin-top: 25px;
+            padding: 20px;
             background: var(--card-bg);
-            border-radius: 8px;
-            font-size: 0.9em;
+            border-radius: 12px;
+            font-size: 1em;
+            border-left: 4px solid var(--primary-color);
         }
 
-        @media (min-width: 481px) {
-            .motivation {
-                font-size: 1em;
-            }
-        }
-
-        .category-filter {
+        .category-filter, .history-type {
             display: flex;
-            gap: 8px;
-            margin-bottom: 15px;
+            gap: 10px;
+            margin-bottom: 20px;
             flex-wrap: wrap;
         }
 
-        @media (max-width: 480px) {
-            .category-filter {
-                gap: 5px;
-            }
-        }
-
-        .category-btn {
-            padding: 6px 12px;
+        .category-btn, .type-btn {
+            padding: 8px 16px;
             border: 2px solid var(--primary-color);
             background: var(--bg-color);
             color: var(--primary-color);
@@ -725,128 +730,182 @@
             font-size: 14px;
         }
 
-        @media (max-width: 480px) {
-            .category-btn {
-                padding: 5px 10px;
-                font-size: 12px;
-            }
-        }
-
-        .category-btn.active {
-            background: var(--primary-color);
-            color: white;
-        }
-
-        .history-type {
-            margin-top: 15px;
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        @media (max-width: 480px) {
-            .history-type {
-                gap: 5px;
-            }
-        }
-
-        .type-btn {
-            padding: 6px 12px;
-            border: 2px solid var(--primary-color);
-            background: var(--bg-color);
-            color: var(--primary-color);
-            border-radius: 20px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        @media (max-width: 480px) {
-            .type-btn {
-                padding: 5px 10px;
-                font-size: 12px;
-            }
-        }
-
-        .type-btn.active {
-            background: var(--primary-color);
-            color: white;
-        }
-
-        .btn-start:hover, .btn-complete:hover, .btn-delete:hover,
         .category-btn:hover, .type-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+        }
+
+        .category-btn.active, .type-btn.active {
+            background: var(--primary-color);
+            color: white;
+            transform: scale(1.05);
         }
 
         .completion-message {
             background: var(--success-color);
             color: white;
-            padding: 10px;
-            border-radius: 5px;
+            padding: 12px;
+            border-radius: 8px;
             text-align: center;
-            margin-top: 10px;
+            margin-top: 15px;
             font-weight: 600;
-            font-size: 0.9em;
-        }
-
-        @media (min-width: 481px) {
-            .completion-message {
-                font-size: 1em;
-            }
+            font-size: 0.95em;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.15);
         }
 
         .total-time {
             background: var(--info-color);
             color: white;
-            padding: 10px;
-            border-radius: 5px;
+            padding: 12px;
+            border-radius: 8px;
             text-align: center;
-            margin-top: 10px;
+            margin-top: 15px;
             font-weight: 600;
-            font-size: 0.9em;
-            margin-bottom: 15px;
+            font-size: 0.95em;
+            margin-bottom: 20px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.15);
         }
 
-        @media (min-width: 481px) {
-            .total-time {
-                font-size: 1em;
-            }
-        }
-
-        /* Fix for calendar day headers */
         .calendar-day-header {
             font-weight: bold;
             text-align: center;
-            padding: 10px;
+            padding: 12px;
             background: var(--card-bg);
-            border-radius: 5px;
+            border-radius: 8px;
+            font-size: 0.95em;
         }
-
+        
+        /* Alarm Settings Styles */
+        .alarm-settings {
+            margin-top: 25px;
+            padding: 20px;
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+        }
+        
+        .alarm-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 15px;
+        }
+        
         @media (max-width: 480px) {
-            .calendar-day-header {
-                padding: 8px;
-                font-size: 0.9em;
+            .alarm-options {
+                grid-template-columns: 1fr;
             }
         }
         
-        /* Notification styles */
+        .alarm-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            background: var(--bg-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid var(--border-color);
+        }
+        
+        .alarm-option:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+        
+        .alarm-option.active {
+            border-color: var(--primary-color);
+            background: var(--primary-color);
+            color: white;
+            transform: scale(1.02);
+        }
+        
+        .custom-alarm-upload {
+            margin-top: 15px;
+            padding: 15px;
+            background: var(--bg-color);
+            border-radius: 8px;
+            border: 2px dashed var(--border-color);
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .custom-alarm-upload:hover {
+            border-color: var(--primary-color);
+            background: var(--card-bg);
+        }
+        
+        .custom-alarm-upload input {
+            display: none;
+        }
+        
+        .upload-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            padding: 10px;
+        }
+        
+        .alarm-test-btn {
+            background: var(--info-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 15px;
+            width: 100%;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: center;
+        }
+        
+        .alarm-test-btn:hover {
+            background: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        /* Footer Styles */
+        .footer {
+            text-align: center;
+            padding: 25px;
+            background: var(--card-bg);
+            color: var(--text-color);
+            border-top: 1px solid var(--border-color);
+            margin-top: 25px;
+        }
+        
+        .creator {
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-top: 8px;
+            font-size: 1.1em;
+        }
+        
+        /* Notification Styles */
         .notification {
             position: fixed;
-            top: 20px;
-            right: 20px;
+            top: 25px;
+            right: 25px;
             background: var(--success-color);
             color: white;
-            padding: 15px 20px;
-            border-radius: 8px;
+            padding: 18px 24px;
+            border-radius: 12px;
             box-shadow: var(--shadow);
             z-index: 1000;
             display: flex;
             align-items: center;
-            gap: 10px;
-            max-width: 300px;
-            animation: slideIn 0.3s ease-out;
+            gap: 12px;
+            max-width: 350px;
+            animation: slideIn 0.4s ease-out;
         }
         
         @keyframes slideIn {
@@ -871,12 +930,129 @@
         .notification.info {
             background: var(--info-color);
         }
+        
+        /* Alarm Modal Styles */
+        .alarm-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            backdrop-filter: blur(5px);
+        }
+        
+        .alarm-content {
+            background: var(--bg-color);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 450px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: pulse 1.5s infinite, slideUp 0.5s ease-out;
+            border: 4px solid var(--danger-color);
+        }
+        
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            50% { transform: scale(1.02); }
+            70% { box-shadow: 0 0 0 20px rgba(239, 68, 68, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+        
+        .alarm-title {
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            color: var(--danger-color);
+            font-weight: 700;
+        }
+        
+        .alarm-message {
+            margin-bottom: 30px;
+            font-size: 1.2em;
+            line-height: 1.5;
+        }
+        
+        .alarm-stop-btn {
+            background: var(--danger-color);
+            color: white;
+            border: none;
+            padding: 15px 35px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 0 auto;
+        }
+        
+        .alarm-stop-btn:hover {
+            background: var(--warning-color);
+            transform: translateY(-3px);
+            box-shadow: 0 7px 20px rgba(0,0,0,0.2);
+        }
+        
+        /* Progress Bar */
+        .progress-bar {
+            height: 6px;
+            background: var(--border-color);
+            border-radius: 3px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: var(--primary-color);
+            border-radius: 3px;
+            transition: width 1s linear;
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--card-bg);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary-color);
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <button class="theme-switch" onclick="toggleTheme()">🌙 Dark Mode</button>
+            <button class="theme-switch" onclick="toggleTheme()">
+                <span>🌙</span> Dark Mode
+            </button>
             <h1>⏰ TimeMaster Pro</h1>
             <p>Your Complete Time Management & History Tracking System</p>
         </div>
@@ -893,7 +1069,9 @@
                         <option value="project">🚀 Project</option>
                         <option value="other">📋 Other</option>
                     </select>
-                    <button onclick="addTask()">Add Task</button>
+                    <button onclick="addTask()">
+                        <span>➕</span> Add Task
+                    </button>
                 </div>
                 <div class="category-filter" id="categoryFilter">
                     <button class="category-btn active" onclick="filterTasks('all')">All</button>
@@ -912,12 +1090,17 @@
                 <h3>⏱️ Custom Study Timer</h3>
                 <div class="timer" id="timer">60:00</div>
                 
+                <!-- Progress Bar -->
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 100%"></div>
+                </div>
+                
                 <!-- Quick Time Options -->
                 <div class="custom-timer">
                     <div class="time-option" onclick="setTimer(15)">15 min</div>
                     <div class="time-option" onclick="setTimer(30)">30 min</div>
                     <div class="time-option" onclick="setTimer(45)">45 min</div>
-                    <div class="time-option" onclick="setTimer(60)">1 hour</div>
+                    <div class="time-option active" onclick="setTimer(60)">1 hour</div>
                     <div class="time-option" onclick="setTimer(90)">1.5 hours</div>
                     <div class="time-option" onclick="setTimer(120)">2 hours</div>
                 </div>
@@ -925,18 +1108,64 @@
                 <!-- Custom Time Input -->
                 <div class="custom-time-input">
                     <input type="number" id="customMinutes" placeholder="Enter minutes" min="1" max="240">
-                    <button onclick="setCustomTimer()">Set Timer</button>
+                    <button onclick="setCustomTimer()">
+                        <span>⏱️</span> Set Timer
+                    </button>
                 </div>
 
                 <div class="timer-controls">
-                    <button class="timer-btn start-btn" onclick="startTimer()">Start</button>
-                    <button class="timer-btn pause-btn" onclick="pauseTimer()">Pause</button>
-                    <button class="timer-btn reset-btn" onclick="resetTimer()">Reset</button>
+                    <button class="timer-btn start-btn" onclick="startTimer()">
+                        <span>▶️</span> Start
+                    </button>
+                    <button class="timer-btn pause-btn" onclick="pauseTimer()">
+                        <span>⏸️</span> Pause
+                    </button>
+                    <button class="timer-btn reset-btn" onclick="resetTimer()">
+                        <span>⏹️</span> Reset
+                    </button>
                 </div>
 
                 <div class="current-activity" id="currentActivity">
                     Current Activity: No task selected
                 </div>
+                
+                <!-- Alarm Settings -->
+                <div class="alarm-settings">
+                    <h4>🔔 Alarm Sound Settings</h4>
+                    <div class="alarm-options">
+                        <div class="alarm-option active" onclick="setAlarmSound('bell')">
+                            <input type="radio" name="alarmSound" value="bell" checked> 
+                            <span>🔔 Classic Bell</span>
+                        </div>
+                        <div class="alarm-option" onclick="setAlarmSound('beep')">
+                            <input type="radio" name="alarmSound" value="beep"> 
+                            <span>📢 Digital Beep</span>
+                        </div>
+                        <div class="alarm-option" onclick="setAlarmSound('chime')">
+                            <input type="radio" name="alarmSound" value="chime"> 
+                            <span>🎵 Gentle Chime</span>
+                        </div>
+                        <div class="alarm-option" onclick="setAlarmSound('digital')">
+                            <input type="radio" name="alarmSound" value="digital"> 
+                            <span>⏰ Digital Alarm</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Custom Alarm Upload -->
+                    <div class="custom-alarm-upload">
+                        <input type="file" id="customAlarmUpload" accept="audio/*">
+                        <label for="customAlarmUpload" class="upload-label">
+                            <span style="font-size: 2em;">📁</span>
+                            <span>Upload Custom Alarm Sound</span>
+                            <small>MP3, WAV, or OGG files</small>
+                        </label>
+                    </div>
+                    
+                    <button class="alarm-test-btn" onclick="testAlarm()">
+                        <span>🔊</span> Test Alarm Sound
+                    </button>
+                </div>
+                
                 <div id="completionMessage"></div>
                 <div class="motivation" id="motivationText">
                     "A goal is a dream with a deadline." - Napoleon Hill
@@ -947,9 +1176,13 @@
             <div class="card history-section">
                 <h3>📅 Work History Calendar</h3>
                 <div class="calendar-header">
-                    <button onclick="changeMonth(-1)">← Previous Month</button>
+                    <button onclick="changeMonth(-1)">
+                        <span>←</span> Previous Month
+                    </button>
                     <h4 id="currentMonth">Month</h4>
-                    <button onclick="changeMonth(1)">Next Month →</button>
+                    <button onclick="changeMonth(1)">
+                        Next Month <span>→</span>
+                    </button>
                 </div>
                 <div class="calendar" id="calendar">
                     <!-- Calendar will be generated dynamically -->
@@ -990,6 +1223,23 @@
                 </div>
             </div>
         </div>
+        
+        <!-- Footer with creator name -->
+        <div class="footer">
+            <p>TimeMaster Pro - Your Ultimate Productivity Companion</p>
+            <p class="creator">Created by Alamin Ahmed</p>
+        </div>
+    </div>
+
+    <!-- Alarm Modal -->
+    <div class="alarm-modal" id="alarmModal" style="display: none;">
+        <div class="alarm-content">
+            <div class="alarm-title">⏰ Time's Up!</div>
+            <div class="alarm-message" id="alarmMessage">Your timer has completed!</div>
+            <button class="alarm-stop-btn" onclick="stopAlarm()">
+                <span>🔇</span> Stop Alarm
+            </button>
+        </div>
     </div>
 
     <script>
@@ -999,6 +1249,7 @@
         let timerWorker;
         let timerRunning = false;
         let timerTime = 60 * 60; // Default 1 hour in seconds
+        let totalTimerTime = 60 * 60; // For progress bar
         let currentActivity = "No task selected";
         let currentStartTime = null;
         let currentTaskId = null;
@@ -1009,6 +1260,30 @@
         let currentHistoryType = 'all';
         let selectedDuration = 60; // Default duration in minutes
         let backgroundTimerActive = false;
+        let alarmSound = 'bell'; // Default alarm sound
+        let alarmAudio = null;
+        let alarmInterval = null;
+        let customAlarmFile = null;
+
+        // Alarm sounds configuration
+        const alarmSounds = {
+            bell: {
+                name: "Classic Bell",
+                url: "https://assets.mixkit.co/sfx/preview/mixkit-alarm-digital-clock-beep-989.mp3"
+            },
+            beep: {
+                name: "Digital Beep", 
+                url: "https://assets.mixkit.co/sfx/preview/mixkit-sci-fi-beep-901.mp3"
+            },
+            chime: {
+                name: "Gentle Chime",
+                url: "https://assets.mixkit.co/sfx/preview/mixkit-magic-chime-1938.mp3"
+            },
+            digital: {
+                name: "Digital Alarm",
+                url: "https://assets.mixkit.co/sfx/preview/mixkit-digital-clock-digital-alarm-buzzer-992.mp3"
+            }
+        };
 
         // Create Web Worker for background timer
         function createTimerWorker() {
@@ -1075,14 +1350,149 @@
         function toggleTheme() {
             document.body.classList.toggle('dark-theme');
             const themeBtn = document.querySelector('.theme-switch');
-            themeBtn.textContent = document.body.classList.contains('dark-theme') ? '☀️ Light Mode' : '🌙 Dark Mode';
+            const isDark = document.body.classList.contains('dark-theme');
+            themeBtn.innerHTML = isDark ? '<span>☀️</span> Light Mode' : '<span>🌙</span> Dark Mode';
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        }
+
+        // Load saved theme
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-theme');
+            document.querySelector('.theme-switch').innerHTML = '<span>☀️</span> Light Mode';
+        }
+
+        // Alarm Functions
+        function setAlarmSound(sound) {
+            alarmSound = sound;
+            
+            // Update UI
+            document.querySelectorAll('.alarm-option').forEach(option => {
+                option.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+            
+            // Update radio button
+            document.querySelector(`input[value="${sound}"]`).checked = true;
+            
+            // Save preference
+            localStorage.setItem('alarmSound', sound);
+            
+            showNotification(`Alarm sound set to: ${alarmSounds[sound].name}`, 'info');
+        }
+
+        // Custom alarm upload
+        document.getElementById('customAlarmUpload').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                if (file.type.startsWith('audio/')) {
+                    customAlarmFile = URL.createObjectURL(file);
+                    alarmSound = 'custom';
+                    
+                    // Update UI
+                    document.querySelectorAll('.alarm-option').forEach(option => {
+                        option.classList.remove('active');
+                    });
+                    
+                    showNotification(`Custom alarm sound uploaded: ${file.name}`, 'success');
+                } else {
+                    showNotification('Please upload an audio file (MP3, WAV, OGG)', 'warning');
+                }
+            }
+        });
+
+        function testAlarm() {
+            playAlarmSound();
+            showNotification(`Testing ${alarmSound === 'custom' ? 'custom' : alarmSounds[alarmSound].name} alarm sound`, 'info');
+        }
+
+        function playAlarmSound() {
+            // Stop any existing alarm
+            stopAlarm();
+            
+            // Create new audio element
+            alarmAudio = new Audio(alarmSound === 'custom' ? customAlarmFile : alarmSounds[alarmSound].url);
+            alarmAudio.loop = true;
+            
+            // Play the alarm sound
+            alarmAudio.play().catch(e => {
+                console.log("Audio play failed:", e);
+                // Fallback to browser beep if audio fails
+                fallbackAlarm();
+            });
+            
+            // Show alarm modal
+            document.getElementById('alarmModal').style.display = 'flex';
+            document.getElementById('alarmMessage').textContent = 
+                `"${currentActivity}" completed! Time to take a break.`;
+        }
+
+        function fallbackAlarm() {
+            // Simple fallback beep using Web Audio API
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.value = 800;
+                oscillator.type = 'sine';
+                
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 1);
+                
+                // Repeat the beep
+                alarmInterval = setInterval(() => {
+                    const newOscillator = audioContext.createOscillator();
+                    const newGainNode = audioContext.createGain();
+                    
+                    newOscillator.connect(newGainNode);
+                    newGainNode.connect(audioContext.destination);
+                    
+                    newOscillator.frequency.value = 800;
+                    newOscillator.type = 'sine';
+                    
+                    newGainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                    newGainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1);
+                    
+                    newOscillator.start(audioContext.currentTime);
+                    newOscillator.stop(audioContext.currentTime + 1);
+                }, 1000);
+            } catch (e) {
+                console.log("Web Audio API not supported");
+            }
+        }
+
+        function stopAlarm() {
+            // Stop audio
+            if (alarmAudio) {
+                alarmAudio.pause();
+                alarmAudio.currentTime = 0;
+                alarmAudio = null;
+            }
+            
+            // Stop fallback alarm
+            if (alarmInterval) {
+                clearInterval(alarmInterval);
+                alarmInterval = null;
+            }
+            
+            // Hide modal
+            document.getElementById('alarmModal').style.display = 'none';
         }
 
         // Timer Settings
         function setTimer(minutes) {
             selectedDuration = minutes;
             timerTime = minutes * 60;
+            totalTimerTime = minutes * 60;
             updateTimerDisplay();
+            updateProgressBar();
             
             // Update active time option
             document.querySelectorAll('.time-option').forEach(option => {
@@ -1104,8 +1514,14 @@
                 setTimer(customMinutes);
                 document.getElementById('customMinutes').value = '';
             } else {
-                alert('Please enter a valid number between 1 and 240 minutes');
+                showNotification('Please enter a valid number between 1 and 240 minutes', 'warning');
             }
+        }
+
+        // Progress Bar
+        function updateProgressBar() {
+            const progress = ((totalTimerTime - timerTime) / totalTimerTime) * 100;
+            document.getElementById('progressFill').style.width = `${progress}%`;
         }
 
         // Task Management
@@ -1129,6 +1545,9 @@
                 saveTasks();
                 renderTasks();
                 updateStats();
+                showNotification('Task added successfully!', 'success');
+            } else {
+                showNotification('Please enter a task name', 'warning');
             }
         }
 
@@ -1139,7 +1558,7 @@
             const activeTasks = tasks.filter(task => !task.completed);
             
             if (activeTasks.length === 0) {
-                taskList.innerHTML = '<li style="text-align: center; color: #6b7280; padding: 20px;">No tasks available</li>';
+                taskList.innerHTML = '<li style="text-align: center; color: #6b7280; padding: 30px; font-style: italic;">No tasks available. Add a task to get started!</li>';
                 return;
             }
             
@@ -1152,9 +1571,15 @@
                         <span class="task-category">${task.categoryName}</span>
                     </div>
                     <div class="task-actions">
-                        <button class="btn-start" onclick="startActivity(${task.id})">Start</button>
-                        <button class="btn-complete" onclick="completeTask(${task.id})">Complete</button>
-                        <button class="btn-delete" onclick="deleteTask(${task.id})">Delete</button>
+                        <button class="btn-start" onclick="startActivity(${task.id})">
+                            <span>▶️</span> Start
+                        </button>
+                        <button class="btn-complete" onclick="completeTask(${task.id})">
+                            <span>✅</span> Complete
+                        </button>
+                        <button class="btn-delete" onclick="deleteTask(${task.id})">
+                            <span>🗑️</span> Delete
+                        </button>
                     </div>
                 `;
                 taskList.appendChild(taskItem);
@@ -1283,21 +1708,27 @@
                 renderCalendar();
                 updateTotalTime();
                 
+                // Play alarm sound
+                playAlarmSound();
+                
                 // Show completion message
                 document.getElementById('completionMessage').innerHTML = 
                     `<div class="completion-message">"${task.text}" completed automatically! (${selectedDuration} minutes)</div>`;
                 
                 setTimeout(() => {
                     document.getElementById('completionMessage').innerHTML = '';
-                }, 3000);
+                }, 5000);
             }
         }
 
         function deleteTask(id) {
-            tasks = tasks.filter(task => task.id !== id);
-            saveTasks();
-            renderTasks();
-            updateStats();
+            if (confirm('Are you sure you want to delete this task?')) {
+                tasks = tasks.filter(task => task.id !== id);
+                saveTasks();
+                renderTasks();
+                updateStats();
+                showNotification('Task deleted successfully', 'info');
+            }
         }
 
         function filterTasks(category) {
@@ -1313,7 +1744,7 @@
             );
             
             if (filteredTasks.length === 0) {
-                taskList.innerHTML = '<li style="text-align: center; color: #6b7280; padding: 20px;">No tasks available</li>';
+                taskList.innerHTML = '<li style="text-align: center; color: #6b7280; padding: 30px; font-style: italic;">No tasks in this category</li>';
                 return;
             }
             
@@ -1326,9 +1757,15 @@
                         <span class="task-category">${task.categoryName}</span>
                     </div>
                     <div class="task-actions">
-                        <button class="btn-start" onclick="startActivity(${task.id})">Start</button>
-                        <button class="btn-complete" onclick="completeTask(${task.id})">Complete</button>
-                        <button class="btn-delete" onclick="deleteTask(${task.id})">Delete</button>
+                        <button class="btn-start" onclick="startActivity(${task.id})">
+                            <span>▶️</span> Start
+                        </button>
+                        <button class="btn-complete" onclick="completeTask(${task.id})">
+                            <span>✅</span> Complete
+                        </button>
+                        <button class="btn-delete" onclick="deleteTask(${task.id})">
+                            <span>🗑️</span> Delete
+                        </button>
                     </div>
                 `;
                 taskList.appendChild(taskItem);
@@ -1338,7 +1775,7 @@
         // Timer Functionality with Background Support
         function startTimer() {
             if (currentActivity === "No task selected") {
-                alert("Please select a task first!");
+                showNotification("Please select a task first!", 'warning');
                 return;
             }
             
@@ -1356,15 +1793,13 @@
                         if (command === 'tick') {
                             timerTime = remainingTime;
                             updateTimerDisplay();
+                            updateProgressBar();
                         } 
                         else if (command === 'completed') {
                             // Timer completed - auto complete the task
                             autoCompleteTask();
                             pauseTimer();
-                            
-                            // Show notification
-                            showNotification(`Time completed! Your task has been automatically completed and saved to history. (${selectedDuration} minutes)`, 'success');
-                            
+                            showNotification(`Time completed! Your task has been automatically completed.`, 'success');
                             resetTimer();
                             
                             // Reset current activity
@@ -1411,7 +1846,9 @@
             }
             
             timerTime = selectedDuration * 60;
+            totalTimerTime = selectedDuration * 60;
             updateTimerDisplay();
+            updateProgressBar();
             document.getElementById('motivationText').textContent = "Get ready to start fresh! 🚀";
         }
 
@@ -1419,11 +1856,11 @@
             if (timerTime > 0) {
                 timerTime--;
                 updateTimerDisplay();
+                updateProgressBar();
             } else {
                 // Timer completed - auto complete the task
                 autoCompleteTask();
                 pauseTimer();
-                alert(`Time completed! Your task has been automatically completed and saved to history. (${selectedDuration} minutes)`);
                 resetTimer();
                 
                 // Reset current activity
@@ -1470,7 +1907,7 @@
             
             for (let i = 0; i < firstDay; i++) {
                 const emptyCell = document.createElement('div');
-                emptyCell.style.padding = '10px';
+                emptyCell.style.padding = '12px';
                 calendar.appendChild(emptyCell);
             }
             
@@ -1552,22 +1989,22 @@
             const dayHistory = getFilteredHistory(dateStr);
             
             if (dayHistory.length === 0) {
-                historyDetails.innerHTML = `<div style="text-align: center; color: #6b7280; padding: 20px;">
+                historyDetails.innerHTML = `<div style="text-align: center; color: #6b7280; padding: 30px; font-style: italic;">
                     ${new Date(dateStr).toLocaleDateString('en-US')} - No records found
                 </div>`;
                 return;
             }
             
-            let html = `<h4 style="margin-bottom: 15px; color: var(--text-color);">${new Date(dateStr).toLocaleDateString('en-US')} - Activity Details</h4>`;
+            let html = `<h4 style="margin-bottom: 20px; color: var(--text-color); border-bottom: 2px solid var(--primary-color); padding-bottom: 10px;">${new Date(dateStr).toLocaleDateString('en-US')} - Activity Details</h4>`;
             
             dayHistory.forEach((record, index) => {
                 html += `
                     <div class="history-item">
                         <div style="flex: 1;">
-                            <strong>${record.activity}</strong>
+                            <strong style="font-size: 1.1em;">${record.activity}</strong>
                             <div class="history-time">Start: ${record.startTime}</div>
                             <div class="history-time">End: ${record.endTime}</div>
-                            <small style="color: var(--primary-color); font-weight: 600;">${record.categoryName} • ${record.type === 'timer' ? 'Timer' : 'Manual'} • ${record.duration} min</small>
+                            <small style="color: var(--primary-color); font-weight: 600; display: inline-block; margin-top: 5px; padding: 4px 8px; background: var(--card-bg); border-radius: 6px;">${record.categoryName} • ${record.type === 'timer' ? 'Timer' : 'Manual'} • ${record.duration} min</small>
                         </div>
                         <div class="history-duration">${record.duration} min</div>
                     </div>
@@ -1579,9 +2016,9 @@
             const totalMinutes = totalTime % 60;
             
             html += `
-                <div class="history-item" style="background: var(--card-bg); font-weight: bold; margin-top: 10px;">
+                <div class="history-item" style="background: var(--primary-color); color: white; font-weight: bold; margin-top: 15px; border-radius: 10px;">
                     <div>Total Time</div>
-                    <div class="history-duration">${totalTime} min (${totalHours}h ${totalMinutes}m)</div>
+                    <div class="history-duration" style="background: white; color: var(--primary-color);">${totalTime} min (${totalHours}h ${totalMinutes}m)</div>
                 </div>
             `;
             
@@ -1657,8 +2094,13 @@
             }
         });
 
-        // Set default timer to 60 minutes on load
-        document.querySelector('.time-option:nth-child(4)').classList.add('active');
+        // Load saved alarm sound preference
+        const savedAlarmSound = localStorage.getItem('alarmSound');
+        if (savedAlarmSound) {
+            alarmSound = savedAlarmSound;
+            document.querySelector(`input[value="${savedAlarmSound}"]`).checked = true;
+            document.querySelector(`input[value="${savedAlarmSound}"]`).parentElement.classList.add('active');
+        }
 
         // Initial render
         renderTasks();
@@ -1678,13 +2120,15 @@
             "One step at a time leads to your goal 🎯",
             "Time management is the key to success ⭐",
             "You can do it, believe in yourself 💫",
-            "Regular study is the master key to success 🔑"
+            "Regular study is the master key to success 🔑",
+            "Productivity is never an accident 🚀",
+            "The future depends on what you do today 🌟"
         ];
 
         setInterval(() => {
             const randomMotivation = motivations[Math.floor(Math.random() * motivations.length)];
-            document.getElementById('motivationText').textContent = randomMotivation;
-        }, 10000);
+            document.getElementById('motivationText').textContent = `"${randomMotivation}"`;
+        }, 8000);
     </script>
 </body>
 </html>
